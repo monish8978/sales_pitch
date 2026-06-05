@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: salecopilot_redis
+    volumes:
+      - redis_data:/data
+    restart: always
+
+  web:
+    build: .
+    container_name: salecopilot_web
+    command: uvicorn app.main:app --host 0.0.0.0 --port 1010
+    ports:
+      - "1010:1010"
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+    restart: always
+
+  worker:
+    build: .
+    container_name: salecopilot_celery_worker
+    command: celery -A app.tasks.celery_app.celery_app worker --loglevel=info
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+    restart: always
+
+volumes:
+  redis_data:

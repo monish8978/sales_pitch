@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalesCopilot - AI Agent Assist</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Premium Styles -->
+    <style>
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .glass-panel-heavy {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glow-indigo {
+            box-shadow: 0 0 40px -5px rgba(99, 102, 241, 0.15);
+        }
+
+        .glow-emerald {
+            box-shadow: 0 0 40px -5px rgba(16, 185, 129, 0.15);
+        }
+
+        .glow-purple {
+            box-shadow: 0 0 40px -5px rgba(168, 85, 247, 0.15);
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Pulse and animate keyframes */
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body
+    class="font-sans h-full overflow-hidden flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/40 via-slate-950 to-slate-950">
+
+    <!-- Dynamic Background Orbs -->
+    <div class="fixed -top-40 -left-40 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+    <div class="fixed top-1/2 -right-40 w-96 h-96 bg-emerald-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <!-- Top Navigation Bar -->
+    <header class="glass-panel shrink-0 z-10 px-6 py-4 flex items-center justify-between border-b border-white/5">
+        <div class="flex items-center space-x-3">
+            <div
+                class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <i data-lucide="zap" class="w-5 h-5 text-white animate-pulse"></i>
+            </div>
+            <div>
+                <h1
+                    class="text-lg font-outfit font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">
+                    SalesCopilot</h1>
+                <p class="text-xs text-indigo-400 font-medium tracking-wide uppercase">Real-Time Agent Assist MVP</p>
+            </div>
+        </div>
+
+        <!-- Action items -->
+        <div class="flex items-center space-x-4">
+            <!-- Connection indicators -->
+            <div
+                class="flex items-center space-x-2 bg-slate-900/60 px-3 py-1.5 rounded-full border border-white/5 text-xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span class="text-slate-400">System Ready</span>
+            </div>
+
+            <!-- Settings button -->
+            <button id="toggle-settings-btn"
+                class="p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-white/5 hover:border-white/10 transition duration-200 text-slate-300 hover:text-white"
+                title="Settings">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- Left Side: Mock CRM Screen -->
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8 flex flex-col space-y-6">
+            <!-- CRM Header -->
+            <div class="flex justify-between items-center border-b border-white/5 pb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-slate-900 rounded-lg border border-white/5">
+                        <i data-lucide="layout" class="w-5 h-5 text-indigo-400"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-slate-200 font-outfit">Salesforce Mock CRM</h2>
+                        <p class="text-xs text-slate-400">Lead Pipeline & Active Dialer</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2 text-xs">
+                    <span
+                        class="px-2.5 py-1 rounded bg-slate-900 text-indigo-400 border border-indigo-500/20 font-medium">Lead
+                        Stage: Hot Prospect</span>
+                    <!-- <span class="px-2.5 py-1 rounded bg-slate-900 text-slate-400 border border-white/5">Owner:
+                        Monish</span> -->
+                </div>
+            </div>
+
+            <!-- CRM Content Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Prospect Profile card -->
+                <div class="md:col-span-2 space-y-6">
+                    <div class="glass-panel rounded-2xl p-6 glow-indigo relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none">
+                        </div>
+                        <h3 class="text-sm font-semibold text-indigo-400 uppercase tracking-wider mb-4">Contact
+                            Information</h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">First
+                                    Name</label>
+                                <input type="text" id="contact-first-name" placeholder="Loading..." readonly
+                                    class="w-full bg-slate-950/80 border border-white/5 rounded-xl px-4 py-2.5 text-slate-300 focus:outline-none focus:border-indigo-500 cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Last
+                                    Name</label>
+                                <input type="text" id="contact-last-name" placeholder="Loading..." readonly
+                                    class="w-full bg-slate-950/80 border border-white/5 rounded-xl px-4 py-2.5 text-slate-300 focus:outline-none focus:border-indigo-500 cursor-not-allowed">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label
+                                    class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Company</label>
+                                <input type="text" id="contact-company" placeholder="Loading..." readonly
+                                    class="w-full bg-slate-950/80 border border-white/5 rounded-xl px-4 py-2.5 text-slate-300 focus:outline-none focus:border-indigo-500 cursor-not-allowed">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Dialer Integration Mock -->
+                    <div class="glass-panel rounded-2xl p-6 glow-emerald relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none">
+                        </div>
+
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-semibold text-emerald-400 uppercase tracking-wider">Outgoing Call
+                                Panel</h3>
+                            <span class="flex items-center space-x-1.5 text-xs text-slate-400">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                <span>Waiting for Agent trigger</span>
+                            </span>
+                        </div>
+
+                        <!-- Main Form Inputs for Lookup -->
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="relative">
+                                    <label
+                                        class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Prospect
+                                        Email</label>
+                                    <div class="relative">
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                            <i data-lucide="mail" class="w-4 h-4 text-slate-400"></i>
+                                        </div>
+                                        <input type="email" id="prospect-email" value="arijit@c-zentrix.com"
+                                            placeholder="email@company.com"
+                                            class="w-full bg-slate-950 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium">
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <label
+                                        class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Prospect
+                                        Phone</label>
+                                    <div class="relative">
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                            <i data-lucide="phone" class="w-4 h-4 text-slate-400"></i>
+                                        </div>
+                                        <input type="tel" id="prospect-phone" value="+919845244545"
+                                            placeholder="+919999999999"
+                                            class="w-full bg-slate-950 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dialer UI and Trigger Button -->
+                            <div class="pt-4 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                                <button id="generate-pitch-btn"
+                                    class="flex-1 relative group overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-3 px-6 rounded-xl transition duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40">
+                                    <div
+                                        class="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white/10 opacity-40 group-hover:animate-shine">
+                                    </div>
+                                    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-200 animate-spin-slow"></i>
+                                    <span>Enrich & Generate Pitch</span>
+                                </button>
+
+                                <button id="quick-fill-btn"
+                                    class="px-4 py-3 rounded-xl bg-slate-900 border border-white/10 hover:bg-slate-800 text-slate-300 hover:text-white transition duration-200 flex items-center justify-center space-x-2"
+                                    title="Load Demo Contact">
+                                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                                    <span class="text-sm font-medium">Demo Leads</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CRM Status Sidebar Mock -->
+                <div class="space-y-6">
+
+                    <div
+                        class="glass-panel rounded-2xl p-6 border-dashed border-white/10 flex flex-col items-center justify-center text-center py-8">
+                        <i data-lucide="info" class="w-8 h-8 text-slate-500 mb-2"></i>
+                        <h4 class="text-xs font-semibold text-slate-300 mb-1">MVP Guidelines</h4>
+                        <p class="text-[11px] text-slate-500 max-w-[200px]">Enter any email or phone. The system parses
+                            it, fetches from Apollo.io, merges with Clarion's brief, and generates a pitch using LLM.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Side: Sales Assistant Sidebar -->
+        <aside id="sidebar"
+            class="w-[450px] shrink-0 glass-panel-heavy border-l border-white/10 overflow-y-auto flex flex-col relative z-20">
+            <!-- Sidebar Header -->
+            <div
+                class="p-6 border-b border-white/5 bg-slate-900/40 sticky top-0 backdrop-blur-md z-10 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></div>
+                    <h2 class="text-md font-bold font-outfit text-slate-200 tracking-wide">SalesCopilot Assistant</h2>
+                </div>
+                <div class="text-xs font-medium text-slate-400 bg-slate-950/80 px-2 py-1 rounded border border-white/5">
+                    AI Active
+                </div>
+            </div>
+
+            <!-- Loader State (Default hidden) -->
+            <div id="sidebar-loader"
+                class="hidden flex-1 flex flex-col items-center justify-center p-8 space-y-6 text-center">
+                <!-- Modern Circular Spinner with glowing aura -->
+                <div class="relative">
+                    <div
+                        class="w-16 h-16 rounded-full border-4 border-indigo-500/10 border-t-indigo-500 animate-spin shadow-lg shadow-indigo-500/15">
+                    </div>
+                    <div class="absolute inset-0 w-16 h-16 rounded-full border-4 border-transparent border-b-purple-500 animate-spin"
+                        style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-md font-semibold text-slate-200">Enriching Prospect & Synthesizing Pitch...</h3>
+                    <p class="text-xs text-slate-500 max-w-[280px]">Querying Apollo.io match service and triggering LLM
+                        reasoning engine.</p>
+                </div>
+                <!-- Mini Telemetry Stream -->
+                <div
+                    class="w-full max-w-[280px] bg-slate-950/80 rounded-xl p-3 border border-white/5 text-left font-mono text-[10px] space-y-1.5 text-slate-400">
+                    <div class="flex justify-between">
+                        <span>[1/2] Apollo Match Lookup...</span>
+                        <span id="loader-apollo-status" class="text-amber-400">Processing...</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>[2/2] LLM Synthesis...</span>
+                        <span id="loader-llm-status" class="text-slate-600">Pending</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty / Onboarding State -->
+            <div id="sidebar-empty" class="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-indigo-950/40 border border-indigo-500/15 flex items-center justify-center shadow-inner glow-indigo">
+                    <i data-lucide="user-search" class="w-8 h-8 text-indigo-400 animate-bounce"></i>
+                </div>
+                <div class="space-y-1.5">
+                    <h3 class="text-sm font-semibold text-slate-200">Waiting for Lead Query</h3>
+                    <p class="text-xs text-slate-500 max-w-[250px] mx-auto">Fill in the CRM email and phone on the left,
+                        then click "Enrich & Generate Pitch" to begin.</p>
+                </div>
+            </div>
+
+            <!-- Content State (Loaded) -->
+            <div id="sidebar-content" class="hidden flex-1 flex flex-col divide-y divide-white/5">
+
+                <!-- Section 1: Prospect Profile Card -->
+                <div class="p-6 bg-gradient-to-b from-indigo-950/10 to-transparent">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-indigo-600 flex items-center justify-center font-bold text-white text-lg font-outfit shadow-md shadow-indigo-600/15"
+                            id="prospect-avatar">
+                            AR
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-base font-bold font-outfit text-slate-100" id="prospect-name">Arijit
+                                    Chatterji</h3>
+                                <a id="prospect-linkedin" href="#" target="_blank"
+                                    class="p-1 rounded bg-slate-900 border border-white/5 hover:bg-slate-800 text-indigo-400 hover:text-indigo-300 transition duration-150">
+                                    <i data-lucide="linkedin" class="w-4 h-4"></i>
+                                </a>
+                            </div>
+                            <p class="text-xs text-indigo-300 font-medium" id="prospect-title">VP Engineering</p>
+
+                            <div class="flex flex-wrap gap-2 pt-2">
+                                <span
+                                    class="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-slate-900 border border-white/5 text-slate-400"
+                                    id="prospect-company">
+                                    <i data-lucide="building" class="w-3 h-3 mr-1"></i>
+                                    C-Zentrix
+                                </span>
+                                <span
+                                    class="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-slate-900 border border-white/5 text-slate-400"
+                                    id="prospect-industry">
+                                    <i data-lucide="tag" class="w-3 h-3 mr-1"></i>
+                                    CX Software
+                                </span>
+                                <span
+                                    class="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-slate-900 border border-white/5 text-slate-400"
+                                    id="prospect-location">
+                                    <i data-lucide="map-pin" class="w-3 h-3 mr-1"></i>
+                                    Gurugram, India
+                                </span>
+                                <span
+                                    class="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-slate-900 border border-white/5 text-slate-400"
+                                    id="prospect-employees">
+                                    <i data-lucide="users" class="w-3 h-3 mr-1"></i>
+                                    250 Employees
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Latency Telemetry Dashboard -->
+                <div class="p-6 bg-slate-950/40">
+                    <h4 class="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-3">Latency Telemetry
+                    </h4>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-slate-950 border border-white/5 rounded-xl p-3 text-center space-y-1">
+                            <span class="block text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Apollo
+                                Match</span>
+                            <span class="block text-sm font-bold font-outfit text-slate-200"
+                                id="telemetry-apollo-time">1.20s</span>
+                            <span
+                                class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-950/40 border border-indigo-500/10 text-indigo-400 block truncate"
+                                id="telemetry-apollo-source">mock</span>
+                        </div>
+                        <div class="bg-slate-950 border border-white/5 rounded-xl p-3 text-center space-y-1">
+                            <span class="block text-[10px] font-semibold text-slate-500 uppercase tracking-wide">AI
+                                Generation</span>
+                            <span class="block text-sm font-bold font-outfit text-slate-200"
+                                id="telemetry-llm-time">2.80s</span>
+                            <span
+                                class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-950/40 border border-indigo-500/10 text-indigo-400 block truncate"
+                                id="telemetry-llm-source">mock</span>
+                        </div>
+                        <div class="bg-slate-950 border border-white/5 rounded-xl p-3 text-center space-y-1">
+                            <span class="block text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Total
+                                latency</span>
+                            <span class="block text-sm font-bold font-outfit text-emerald-400"
+                                id="telemetry-total-time">4.00s</span>
+                            <span
+                                class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950/30 border border-emerald-500/10 text-emerald-400 block">complete</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Prospect Summary -->
+                <div class="p-6 space-y-3">
+                    <h4
+                        class="text-xs font-semibold text-indigo-400 uppercase tracking-wider flex items-center space-x-1.5">
+                        <i data-lucide="align-left" class="w-4 h-4"></i>
+                        <span>Prospect Summary</span>
+                    </h4>
+                    <p class="text-xs text-slate-300 leading-relaxed bg-slate-950 border border-white/5 p-3.5 rounded-xl"
+                        id="analysis-summary">
+                        Arijit Chatterji is the VP Engineering at C-Zentrix, a growing CX software company. He likely
+                        oversees engineering capacity, delivery timelines, and product scalability.
+                    </p>
+                </div>
+
+                <!-- Section 4: Dynamic Personalization Insights -->
+                <div class="p-6 space-y-3">
+                    <h4
+                        class="text-xs font-semibold text-indigo-400 uppercase tracking-wider flex items-center space-x-1.5">
+                        <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                        <span>Personalization Insights</span>
+                    </h4>
+                    <ul class="space-y-3 text-xs" id="analysis-insights">
+                        <li class="flex items-start space-x-2.5">
+                            <span
+                                class="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-950/60 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-[10px] font-bold mt-0.5">1</span>
+                            <span class="text-slate-300 leading-normal">Operational Hook: Suggest C-Zentrix can scale
+                                its software delivery initiatives without increasing hiring overhead.</span>
+                        </li>
+                        <li class="flex items-start space-x-2.5">
+                            <span
+                                class="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-950/60 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-[10px] font-bold mt-0.5">2</span>
+                            <span class="text-slate-300 leading-normal">Cost Incentive: Emphasize reducing engineering
+                                costs by up to 60% with experienced dedicated offshore engineering teams.</span>
+                        </li>
+                        <li class="flex items-start space-x-2.5">
+                            <span
+                                class="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-950/60 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-[10px] font-bold mt-0.5">3</span>
+                            <span class="text-slate-300 leading-normal">Service Alignment: Clarion's Flutter & React
+                                Native specializations match C-Zentrix's mobile expansion trajectory.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Section 5: Suggested Outreach Pitch -->
+                <div class="p-6 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4
+                            class="text-xs font-semibold text-indigo-400 uppercase tracking-wider flex items-center space-x-1.5">
+                            <i data-lucide="message-square" class="w-4 h-4"></i>
+                            <span>Suggested Sales Pitch (60-sec)</span>
+                        </h4>
+
+                        <!-- Extra action items -->
+                        <div class="flex space-x-2">
+                            <!-- Speak Pitch button -->
+                            <button id="speak-pitch-btn"
+                                class="p-1.5 rounded bg-slate-900 border border-white/5 hover:bg-slate-800 text-slate-400 hover:text-white transition duration-150"
+                                title="Listen to Pitch (TTS)">
+                                <i data-lucide="volume-2" class="w-3.5 h-3.5" id="tts-icon"></i>
+                            </button>
+                            <!-- Copy button -->
+                            <button id="copy-pitch-btn"
+                                class="p-1.5 rounded bg-slate-900 border border-white/5 hover:bg-slate-800 text-slate-400 hover:text-white transition duration-150"
+                                title="Copy to Clipboard">
+                                <i data-lucide="copy" class="w-3.5 h-3.5" id="copy-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="relative bg-slate-950 border border-white/5 rounded-xl p-4 glow-indigo">
+                        <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap select-all selection:bg-indigo-600/30"
+                            id="analysis-pitch">
+                            Hi Arijit, I noticed C-Zentrix is scaling its software delivery initiatives. Clarion
+                            Technologies helps engineering leaders extend their development capacity through dedicated
+                            offshore teams, often reducing development costs by up to 60% while accelerating project
+                            delivery. I'd love to explore whether we can support your roadmap without increasing hiring
+                            overhead.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Collapsible Settings Panel Modal -->
+    <div id="settings-modal"
+        class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+            class="w-full max-w-xl glass-panel-heavy rounded-2xl p-6 glow-purple border border-white/10 max-h-[90vh] overflow-y-auto">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b border-white/5 pb-4 mb-5">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="settings" class="w-5 h-5 text-indigo-400"></i>
+                    <h3 class="text-md font-bold font-outfit text-slate-200">System Preferences & Custom Keys</h3>
+                </div>
+                <button id="close-settings-btn"
+                    class="p-1 rounded bg-slate-900 border border-white/5 hover:bg-slate-800 text-slate-400 hover:text-white transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="space-y-5">
+
+                <!-- Clarion Predefined Brief Edit -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Seller Company Brief Settings
+                    </h4>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Company Name</label>
+                        <input type="text" id="brief-company" value="Clarion Technologies"
+                            class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Specialized Services (Comma
+                            Separated)</label>
+                        <input type="text" id="brief-services"
+                            value="Mobile App Development, React Native, Flutter, SaaS Development"
+                            class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Key Value Propositions (Comma
+                            Separated)</label>
+                        <input type="text" id="brief-value-props"
+                            value="60% Cost Savings, Dedicated Teams in 1-2 Weeks, 20+ Years Experience"
+                            class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer actions -->
+            <div class="flex justify-end space-x-3 border-t border-white/5 pt-4 mt-5">
+                <button id="save-settings-btn"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition duration-200">
+                    Save Config
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Entrypoint -->
+    <script src="/app.js"></script>
+</body>
+
+</html>
