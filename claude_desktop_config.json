@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "sales-copilot": {
+      "command": "python",
+      "args": [
+        "d:/sale_pitch/mcp_server.py"
+      ]
+    }
+  }
+}
