@@ -86,18 +86,27 @@ async def trigger_pitch_generation_async(req: PitchRequest):
     It returns the Celery task_id immediately.
     """
     email_clean = req.email.strip().lower()
-    logger.info(f"Received async pitch generation request for email: {email_clean}")
-    
     try:
-        # Trigger the Celery task in the background
-        task = generate_pitch_task.delay(
-            email=req.email,
-            phone=req.phone,
-            apollo_api_key=req.apollo_api_key,
-            groq_api_key=req.groq_api_key,
-            use_mock=req.use_mock
+        task_id = "ef5cf8b9-8bde-4ea2-8abf-e885835e6d88"
+        
+        # Clear/forget previous task result from Redis backend to reset status and clear old data
+        try:
+            AsyncResult(task_id, app=celery_app).forget()
+            logger.info(f"Cleared previous result for task ID: {task_id}")
+        except Exception as ex:
+            logger.warning(f"Could not clear previous task result: {ex}")
+
+        task = generate_pitch_task.apply_async(
+            kwargs={
+                "email": req.email,
+                "phone": req.phone,
+                "apollo_api_key": req.apollo_api_key,
+                "groq_api_key": req.groq_api_key,
+                "use_mock": req.use_mock
+            },
+            task_id=task_id
         )
-        logger.info(f"Queued Celery task with ID: {task.id}")
+        logger.info(f"Queued Celery task with fixed ID: {task.id}")
         return {
             "task_id": task.id,
             "status": "PENDING",
