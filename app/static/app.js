@@ -182,7 +182,7 @@ async function handleGenerate() {
             groq_api_key: groqKey
         };
 
-        const response = await fetch('/api/generate-pitch', {
+        const response = await fetch('/api/generate-pitch-async', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -199,24 +199,55 @@ async function handleGenerate() {
             throw new Error(errorMsg);
         }
 
-        const data = await response.json();
+        const initialData = await response.json();
+        const taskId = initialData.task_id;
         
-        // Show Apollo done, LLM start
-        loaderApolloStatus.textContent = 'Success';
-        loaderApolloStatus.className = 'text-emerald-500 font-semibold';
-        loaderLlmStatus.textContent = 'Synthesizing Pitch...';
-        loaderLlmStatus.className = 'text-amber-400 font-medium';
+        loaderApolloStatus.textContent = 'Task Queued...';
+        loaderApolloStatus.className = 'text-amber-400 font-medium';
+        loaderLlmStatus.textContent = 'Polling Status...';
+        loaderLlmStatus.className = 'text-slate-500';
 
-        // Brief delay for transition smooth experience
-        await new Promise(resolve => setTimeout(resolve, 600));
+        // Polling loop
+        let taskCompleted = false;
+        let attempts = 0;
+        const maxAttempts = 120; // 3 minutes max (120 * 1.5s)
+        
+        while (!taskCompleted && attempts < maxAttempts) {
+            attempts++;
+            await new Promise(resolve => setTimeout(resolve, 1500)); // wait 1.5s between polls
 
-        loaderLlmStatus.textContent = 'Done';
-        loaderLlmStatus.className = 'text-emerald-500 font-semibold';
+            const pollResponse = await fetch(`/api/tasks/${taskId}`);
+            if (!pollResponse.ok) {
+                throw new Error(`Failed to check task status. Code: ${pollResponse.status}`);
+            }
 
-        await new Promise(resolve => setTimeout(resolve, 400));
+            const taskData = await pollResponse.json();
+            const status = taskData.status;
 
-        // Render response data
-        renderOutput(data);
+            if (status === 'SUCCESS') {
+                taskCompleted = true;
+                
+                loaderApolloStatus.textContent = 'Enriched';
+                loaderApolloStatus.className = 'text-emerald-500 font-semibold';
+                loaderLlmStatus.textContent = 'Synthesized';
+                loaderLlmStatus.className = 'text-emerald-500 font-semibold';
+
+                await new Promise(resolve => setTimeout(resolve, 400));
+                
+                renderOutput(taskData.result);
+            } else if (status === 'FAILURE') {
+                throw new Error(taskData.error || 'Task execution failed on worker.');
+            } else {
+                // Task is still PENDING/STARTED/PROCESSING
+                loaderApolloStatus.textContent = 'Enriching/Synthesizing...';
+                loaderLlmStatus.textContent = `Processing (${status})...`;
+                loaderLlmStatus.className = 'text-amber-400 font-medium';
+            }
+        }
+
+        if (!taskCompleted) {
+            throw new Error('Task execution timed out. Please try again.');
+        }
 
     } catch (error) {
         console.error('Error generating pitch:', error);

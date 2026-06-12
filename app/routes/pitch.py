@@ -79,6 +79,38 @@ async def trigger_pitch_generation(req: PitchRequest):
             detail=f"Failed to generate pitch: {str(e)}"
         )
 
+@router.post("/generate-pitch-async", dependencies=[Depends(rate_limit_ip(limit=5, window=60))])
+async def trigger_pitch_generation_async(req: PitchRequest):
+    """
+    Endpoint to trigger pitch generation asynchronously.
+    It returns the Celery task_id immediately.
+    """
+    email_clean = req.email.strip().lower()
+    logger.info(f"Received async pitch generation request for email: {email_clean}")
+    
+    try:
+        # Trigger the Celery task in the background
+        task = generate_pitch_task.delay(
+            email=req.email,
+            phone=req.phone,
+            apollo_api_key=req.apollo_api_key,
+            groq_api_key=req.groq_api_key,
+            use_mock=req.use_mock
+        )
+        logger.info(f"Queued Celery task with ID: {task.id}")
+        return {
+            "task_id": task.id,
+            "status": "PENDING",
+            "message": "Task queued successfully. Use GET /api/tasks/{task_id} to poll the status and result."
+        }
+    except Exception as e:
+        logger.error(f"Failed to queue pitch task: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to queue pitch task: {str(e)}"
+        )
+
+
 @router.get("/tasks/{task_id}")
 async def get_task_status(task_id: str):
     """
